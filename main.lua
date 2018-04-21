@@ -7,6 +7,8 @@ local triggers = {}
 function love.load()
 	gameWidth, gameHeight = love.graphics.getDimensions()
 	loadTriggerTable()
+	love.graphics.setBackgroundColor(255, 255, 255)
+	-- background = love.graphics.newImage(backgroundFile)
 end
 
 function loadTriggerTable()
@@ -20,7 +22,6 @@ function loadTriggerTable()
 	for idx, trigger in ipairs(triggers) do
 		table.insert(entities, trigger)
 	end
-	print("entities: ", #entities)
 end
 
 function love.draw()
@@ -32,5 +33,11 @@ end
 function love.update(dt)
 	for idx, entity in ipairs(entities) do
 		entity:update(dt)
+	end
+end
+
+function love.keypressed(key)
+	for idx, trigger in ipairs(triggers) do
+		trigger:keypressed(key)
 	end
 end
