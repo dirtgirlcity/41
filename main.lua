@@ -3,7 +3,7 @@ local Target = require('target')
 
 local entities = {}
 local triggers = {}
-local targets = {}
+targets = {}
 
 -- TODO: take from user input
 local difficulty = 1
@@ -73,5 +73,6 @@ end
 function addNewTarget(dt)
 	local newTarget = Target(difficulty)
 	table.insert(entities, newTarget)
+	table.insert(targets, newTarget)
 	print('inserted target!')
 end

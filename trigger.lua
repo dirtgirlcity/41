@@ -31,14 +31,17 @@ function Trigger(key)
 		w = width,
 		h = height,
 		x = x * xOffset,
-		y = y * yOffset
+		y = y * yOffset,
+		inactive = false
 	}
 	setmetatable(instance, triggerClass)
 	return instance
 end
 
 function triggerClass:draw()
-	love.graphics.draw(self.i, self.x, self.y)
+	if self.inactive == false then
+		love.graphics.draw(self.i, self.x, self.y)
+	end
 end
 
 function triggerClass:update(dt)
@@ -49,6 +52,37 @@ function triggerClass:keypressed(key)
 		self.note:stop()
 		self.note:play()
 		print("you pressed: ", key)
+		if self:collisionDetected() then
+			print("collided!")
+			self.inactive = true
+		end
+	end
+end
+
+function triggerClass:collisionDetected()
+	print('target loop for key: ', self.key)
+	print('number of targets to loop through: ', #targets)
+	for idx, target in ipairs(targets) do
+		print('target idx: ', idx)
+
+		local targetCenterX = target.x + (target.w / 2)
+		local targetCenterY = target.y + (target.h / 2)
+
+		print('target self.x: ', self.x)
+		print('target self.y: ', self.y)
+
+		print('target center x: ', targetCenterX)
+		print('target center y: ', targetCenterY)
+
+		print('target self.x + self.w: ', self.x + self.w)
+		print('target self.y + self.h: ', self.y + self.h)
+
+		if targetCenterX > self.x and
+			targetCenterX < self.x + self.w and
+			targetCenterY > self.y and
+			targetCenterY < self.y + self.h then
+			print("butterfly center inside key: ", self.key)
+		end
 	end
 end
 
