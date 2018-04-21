@@ -1,19 +1,24 @@
 local targetClass = { }
 targetClass.__index = targetClass
 
-function Target()
-	local targetFile = '/images/butterfly.png'
+local directions = { "N", "S", "E", "W" }
+
+function Target(difficulty)
+	local targetFile = '/images/transparent_butterfly.png'
 	local image = love.graphics.newImage(targetFile)
-	local w, h = image:getDimension( )
-	local x, y = setStartSide(w, h)
+	local w, h = image:getDimensions( )
+	local x, y, direction = setStartSide(w, h)
+	local speed = setStartSpeed(difficulty)
 	local instance = {
 		class = 'target',
+		d = direction,
 		i = image,
 		w = w,
 		h = h,
 		x = x,
 		y = y,
-		s = setStartSpeed()
+		s = speed,
+		inactive = false
 	}
 	setmetatable(instance, targetClass)
 	return instance
@@ -24,15 +29,99 @@ function targetClass:draw()
 end
 
 function targetClass:update(dt)
+	if self:edgeDetected() then
+		self.inactive = true
+	else
+		self:move()
+		print('movement')
+	end
 end
 
-function setStartSide()
-	local side = "L"
-	if side == "L" then
-		x = 0
-		y = 300 --TODO: calculate bound box
+function targetClass:move()
+
+	print("before")
+	print("self.x: ", self.x)
+	print("self.y: ", self.y)
+
+	print("direction: ", self.d)
+	if self.d == "N" then
+		self.y = self.y - self.s
 	end
-	return x, y
+	
+	if self.d == "S" then
+		self.y = self.y + self.s
+	end
+	
+	if self.d == "E" then
+		self.x = self.x + self.s
+	end
+	
+	if self.d == "W" then
+		self.x = self.x - self.s
+	end
+
+	print("after")
+	print("self.x: ", self.x)
+	print("self.y: ", self.y)
+
+end
+
+function targetClass:edgeDetected()
+	if self.d == "N" and self.y <= 0 - self.h then
+		return true
+	end
+
+	if self.d == "S" and self.y >= gameHeight then
+		return true
+	end
+
+	if self.d == "E" and self.x >= gameWidth then
+		return true
+	end
+
+	if self.d == "W" and self.x <= 0 - self.w then
+		return true
+	end
+	
+	return false
+end
+
+function setStartSide(w, h)
+	local direction = math.random(1,4)
+	local side = directions[direction]
+
+	local xBoundary = math.random(0, gameWidth - w)
+	local yBoundary = math.random(0, gameHeight - h)
+
+	if side == "N" then
+		x = xBoundary
+		y = 0 - h
+		d = "S"
+	end
+
+	if side == "S" then
+		x = xBoundary
+		y = gameHeight
+		d = "N"
+	end
+
+	if side == "E" then
+		x = gameWidth
+		y = yBoundary
+		d = "W"
+	end
+
+	if side == "W" then
+		x = 0 - w
+		y = yBoundary
+		d = "E"
+	end
+
+	return x, y, d
+end
+
+function setStartSpeed(difficulty)
+	return 5*(difficulty)
 end
 
 return Target

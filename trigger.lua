@@ -18,10 +18,11 @@ function Trigger(key)
 	local triggerFile = '/images/transparent_trigger.png'
 	local image = love.graphics.newImage(triggerFile)
 	local width, height = image:getDimensions( )
-	local x, y = getTriggerPlacement(key)
+
 	local noteFile = getNoteFileFromKey(key)
-	print("noteFile: ", noteFile)
-	local sound = love.audio.newSource(noteFile, "static")
+	local sound = love.audio.newSource(noteFile, 'static')
+	
+	local x, y = getTriggerPlacement(key)
 	local instance = {
 		class = "trigger",
 		key = key,
