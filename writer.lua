@@ -77,7 +77,7 @@ function writerClass:draw()
 		end
 	end
 
-	if self.lastLetter ~= "" then
+	if self.alphabet[self.lastLetter] then
 		love.graphics.draw(self.alphabet[self.lastLetter], gameWidth - 100, gameHeight - 100)
 	end
 end
