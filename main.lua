@@ -6,17 +6,9 @@ targets = { }
 textQueue = { }
 triggers = { }
 
--- TODO: take from user input
 local difficulty = 1
 
 function love.load()
-	--local success = love.window.setFullscreen()
-	--if success == true then
-	--	print('full screened!')
-	--else
-	--	print('tried to full screen.')
-	--end
-
 	love.graphics.setBackgroundColor(255, 255, 255)
 	background = love.graphics.newImage('/images/background_tile.png')
 	love.window.setTitle("pain in the butterfly")
@@ -34,7 +26,7 @@ function love.load()
 		table.insert(entities, trigger)
 	end
 
-	writer = Writer()
+	writer = Writer("idiom")
 	table.insert(entities, writer)
 end
 
@@ -44,8 +36,13 @@ function love.draw()
 			love.graphics.draw(background, r * background:getWidth(), c * background:getHeight())
 		end
 	end
-	for idx, entity in ipairs(entities) do
-		entity:draw()
+	if gameOver then
+		local endWriter = Writer("gameOver")
+		endWriter:draw()
+	else
+		for idx, entity in ipairs(entities) do
+			entity:draw()
+		end
 	end
 end
 
@@ -75,6 +72,7 @@ function love.keypressed(key)
 	for idx, trigger in ipairs(triggers) do
 		trigger:keypressed(key)
 	end
+	writer:keypressed(key)
 end
 
 function love.textinput(key)

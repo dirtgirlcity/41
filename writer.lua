@@ -14,7 +14,7 @@ local idiomTable = {
 	"curses like chickens come home to roost"
 }
 
-function Writer( )
+function Writer(idiomType)
 	local w, h = 0, 0
 	local alphabet = { }
 
@@ -26,20 +26,33 @@ function Writer( )
 		local w, h = img:getDimensions()
 	end
 
-	local idiom = chooseIdiom()
+	local idiom = { }
+	if idiomType == "idiom" then
+		idiom = chooseIdiom()
+	elseif idiomType == "gameOver" then
+		idiom = "you have learned all this has to teach you"
+	else
+		idiom = "test practice typing"
+	end
+	
 	local words = getWordsFromIdiom(idiom)
 	local characters = getCharactersFromWords(words)
+	local wordsAsCharacters = getWordsAsCharacters(characters)
 
 	local instance = {
 		alphabet = alphabet,
 		idiom = idiom,
 		words = words,
 		characters = characters,
+		wordsAsCharacters = wordsAsCharacters,
+		lastLetter = "",
 		x = 50,
 		y = 50,
 		w = w,
 		h = h,
-		queue = { }
+		letterQueue = { },
+		wordQueue = { },
+		wordsComplete = { }
 	}
 	setmetatable(instance, writerClass)
 	return instance
@@ -51,17 +64,11 @@ function writerClass:draw()
 	local yOffset = 0
 
 	for idx, character in ipairs(self.characters) do
-		print("character: ", character)
 		if character ~= " " then
 			love.graphics.draw(self.alphabet[character], self.x + xOffset , self.y + yOffset)
 			xOffset = xOffset + self.w + buffer
 		else
-			print("at a space")
-			print("self.x: ", self.x)
-			print("gameWidth: ", gameWidth)
-			print("#self.characters: ", #self.characters)
-			print("self.x + (xOffset * idx): ", self.x + (xOffset * idx))
-			if (self.x + (5 * xOffset)) >= gameWidth then
+			if (self.x + (3 * xOffset)) >= gameWidth then
 				xOffset = 0
 				yOffset = yOffset + self.h + buffer
 			else
@@ -70,14 +77,93 @@ function writerClass:draw()
 		end
 	end
 
-	print("characters length: ", #self.characters)
+	if self.lastLetter ~= "" then
+		love.graphics.draw(self.alphabet[self.lastLetter], gameWidth - 100, gameHeight - 100)
+	end
 end
 
 function writerClass:update(dt)
+	self:endHelper()
+end
+
+function writerClass:keypressed(key)
+	if key == "return" then
+		self:endHelper()
+	end
+end
+
+function writerClass:endHelper()
+	local complete = self:checkForCompleteIdiom()
+	if complete == true then
+		self:restart()
+	end
+end
+
+function writerClass:textinput(t)
+	self.lastLetter = t
+
+	local candidateWords = { }
+	if next(self.wordQueue) == nil then
+		candidateWords = copy(self.wordsAsCharacters)
+	else
+		candidateWords = copy(self.wordQueue)
+	end
+	
+	self:checkText(t, (#self.letterQueue + 1), candidateWords)
+end
+
+function writerClass:checkText(t, currentPosition, candidateWords)
+	for idx, word in pairs(candidateWords) do
+		
+		if word[currentPosition] == t then
+			-- this condition avoids duplicate inserts if more than one word is valid
+			if self.letterQueue[currentPosition] ~= t then
+				table.insert(self.letterQueue, t)
+			end
+		
+			if #word == #self.letterQueue then
+				table.insert(self.wordsComplete, idx)
+				self.letterQueue = { }
+			end
+		
+		else
+			candidateWords[idx] = nil
+		end
+	
+	end				
+	
+	self.wordQueue = copy(candidateWords)
+end
+
+function writerClass:checkForCompleteIdiom()
+	local complete = false
+	if #self.wordsComplete >= #self.words then
+		for i, requiredWord in ipairs(self.words) do
+			local matches = 0
+			for j, completedWord in ipairs(self.wordsComplete) do
+				if j == #self.wordsComplete and matches == #self.words then
+					complete = true
+				else
+					if requiredWord == completedWord then
+						matches = matches + 1
+					end
+				end
+			end
+		end
+	end
+	return complete
+end
+
+function copy(entry)
+	local tbl = { }
+	for k, v in pairs(entry) do
+		tbl[k] = v
+	end
+	return tbl
 end
 
 function chooseIdiom()
-	love.math.setRandomSeed(111)
+	math.randomseed(os.time())
 	local i = math.random(1, #idiomTable)
 	local current = idiomTable[i]
 	table.remove(idiomTable, i)
@@ -92,18 +178,40 @@ function getWordsFromIdiom(idiom)
 	return words
 end
 
+function getWordsAsCharacters(characters)
+	local wordsAsCharacters = { }
+	local wordCharacters = { }
+	for idx, character in ipairs(characters) do
+		if character ~= " " then
+			table.insert(wordCharacters, character)
+		else
+			local joinedCharacters = table.concat(wordCharacters)
+			wordsAsCharacters[joinedCharacters] = wordCharacters
+			wordCharacters = { }
+		end
+	end
+	return wordsAsCharacters
+end
+
 function getCharactersFromWords(words)
 	characters = { }
 	for idx, word in ipairs(words) do
-		print("word: ", word)
 		for character in string.gmatch(word, ".") do
 			table.insert(characters, character)
-			print("character: ", character)
 		end
 		table.insert(characters, " ")
 	end
 	return characters
 end
 
-return Writer
+function writerClass:restart()
+	self.idiom = chooseIdiom()
+	if next(self.idiom) ~= nil then
+		gameOver = true
+	end
+	self.words = getWordsFromIdiom(self.idiom)
+	self.characters = getCharactersFromWords(self.words)
+	self.wordsAsCharacters = getWordsAsCharacters(self.characters)
+end
 
+return Writer
