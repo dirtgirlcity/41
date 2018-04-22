@@ -33,17 +33,10 @@ function targetClass:update(dt)
 		self.inactive = true
 	else
 		self:move()
-		print('movement')
 	end
 end
 
 function targetClass:move()
-
-	print("before")
-	print("self.x: ", self.x)
-	print("self.y: ", self.y)
-
-	print("direction: ", self.d)
 	if self.d == "N" then
 		self.y = self.y - self.s
 	end
@@ -59,11 +52,6 @@ function targetClass:move()
 	if self.d == "W" then
 		self.x = self.x - self.s
 	end
-
-	print("after")
-	print("self.x: ", self.x)
-	print("self.y: ", self.y)
-
 end
 
 function targetClass:edgeDetected()
@@ -90,8 +78,8 @@ function setStartSide(w, h)
 	local direction = math.random(1,4)
 	local side = directions[direction]
 
-	local xBoundary = math.random(0, gameWidth - w)
-	local yBoundary = math.random(0, gameHeight - h)
+	local xBoundary = (math.random(0, gameWidth - w) / 10) * 10
+	local yBoundary = (math.random(0, gameHeight - h) / 10) * 10
 
 	if side == "N" then
 		x = xBoundary

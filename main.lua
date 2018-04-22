@@ -1,33 +1,40 @@
 local Trigger = require('trigger')
 local Target = require('target')
+local Writer = require('writer')
 
-local entities = {}
-local triggers = {}
-targets = {}
+targets = { }
+textQueue = { }
+triggers = { }
 
 -- TODO: take from user input
 local difficulty = 1
 
 function love.load()
-	love.window.setTitle("Pain in the Butterfly")
-	gameWidth, gameHeight = love.graphics.getDimensions()
-	loadTriggerTable()
+	--local success = love.window.setFullscreen()
+	--if success == true then
+	--	print('full screened!')
+	--else
+	--	print('tried to full screen.')
+	--end
 
 	love.graphics.setBackgroundColor(255, 255, 255)
 	background = love.graphics.newImage('/images/background_tile.png')
-end
-
-function loadTriggerTable()
-	local a = Trigger('a')
-	table.insert(triggers, a)
-	local s = Trigger('s')
-	table.insert(triggers, s)
-	local d = Trigger('d')
-	table.insert(triggers, d)
+	love.window.setTitle("pain in the butterfly")
+	gameWidth, gameHeight = love.graphics.getDimensions()
+	entities = { }
+	
+	for i = 97, 122 do
+		local c = string.char(i)
+		local t = Trigger(c)
+		table.insert(triggers, t)
+	end
+	table.insert(triggers, Trigger('return'))
 
 	for idx, trigger in ipairs(triggers) do
 		table.insert(entities, trigger)
 	end
+
+	table.insert(entities, Writer())
 end
 
 function love.draw()
@@ -42,7 +49,6 @@ function love.draw()
 end
 
 function love.update(dt)
-
 	local currentTargetNumber = 0
 	for idx, entity in ipairs(entities) do
 		entity:update(dt)
@@ -74,5 +80,4 @@ function addNewTarget(dt)
 	local newTarget = Target(difficulty)
 	table.insert(entities, newTarget)
 	table.insert(targets, newTarget)
-	print('inserted target!')
 end
