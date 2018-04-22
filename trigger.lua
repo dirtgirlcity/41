@@ -11,7 +11,7 @@ local triggerTable = {
 	u = {x = 7, y = 1, note = '/sounds/036.wav', image = '/images/letters/transparent_u.png', group = 'ri'},
 	i = {x = 8, y = 1, note = '/sounds/037.wav', image = '/images/letters/transparent_i.png', group = 'rm'},
 	o = {x = 9, y = 1, note = '/sounds/038.wav', image = '/images/letters/transparent_o.png', group = 'rp'},
-	p = {x = 10, y = 1, note = '/sounds/039.wav', image = '/images/letters/transparent_p.png', group = 'lp'},
+	p = {x = 10, y = 1, note = '/sounds/039.wav', image = '/images/letters/transparent_p.png', group = 'rp'},
 	a = {x = 1, y = 2, note = '/sounds/040.wav', image = '/images/letters/transparent_a.png', group = 'lp'},
 	s = {x = 2, y = 2, note = '/sounds/041.wav', image = '/images/letters/transparent_s.png', group = 'lr'},
 	d = {x = 3, y = 2, note = '/sounds/042.wav', image = '/images/letters/transparent_d.png', group = 'lm'},
