@@ -34,7 +34,8 @@ function love.load()
 		table.insert(entities, trigger)
 	end
 
-	table.insert(entities, Writer())
+	writer = Writer()
+	table.insert(entities, writer)
 end
 
 function love.draw()
@@ -74,6 +75,10 @@ function love.keypressed(key)
 	for idx, trigger in ipairs(triggers) do
 		trigger:keypressed(key)
 	end
+end
+
+function love.textinput(key)
+	writer:textinput(key)
 end
 
 function addNewTarget(dt)
