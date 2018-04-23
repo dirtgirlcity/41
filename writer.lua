@@ -1,12 +1,7 @@
 local writerClass = { }
 writerClass.__index = writerClass
 
-
 local idiomTable = {
-	"hi ello",
-	"bye good"
-}
-local idiotTable = {
 	"laws catch flies but let hornets go free",
 	"with lies you may get ahead in life but you may never go back",
 	"in the house of the hanged man they do not mention the rope",
@@ -112,26 +107,14 @@ function writerClass:refreshQueue()
 		candidateWords = copy(self.wordsAsCharacters)
 	else
 		print('copying from word queue')
+		print(require('dump')(self.wordQueue))
 		candidateWords = copy(self.wordQueue)
 	end
 	return candidateWords
 end
 
 function writerClass:checkText(t, currentPosition, candidateWords)
-		
-		print(require('dump')({
-			t = t,
-			currentPosition = currentPosition,
-			candidateWords = candidateWords
-		}))
-
 		for idx, word in pairs(candidateWords) do
-		
-			print(require('dump')({
-				idx = idx,
-				word = word
-			}))
-						
 			if word[currentPosition] == t then
 				-- this condition avoids duplicate inserts if more than one word is valid
 				if self.letterQueue[currentPosition] ~= t then
@@ -141,15 +124,11 @@ function writerClass:checkText(t, currentPosition, candidateWords)
 				if #word == #self.letterQueue then
 					table.insert(self.wordsComplete, idx)
 					self.letterQueue = { }
-					candidateWords = self:refreshQueue()
 				end
-		
 			else
 				candidateWords[idx] = nil
 			end
-	
 	end				
-	
 	self.wordQueue = copy(candidateWords)
 end
 
