@@ -37,8 +37,7 @@ function love.draw()
 		end
 	end
 	if gameOver then
-		local endWriter = Writer("gameOver")
-		endWriter:draw()
+		writer:draw()
 	else
 		for idx, entity in ipairs(entities) do
 			entity:draw()

@@ -1,7 +1,12 @@
 local writerClass = { }
 writerClass.__index = writerClass
 
+
 local idiomTable = {
+	"hi hello",
+	"bye below"
+}
+local idiotTable = {
 	"laws catch flies but let hornets go free",
 	"with lies you may get ahead in life but you may never go back",
 	"in the house of the hanged man they do not mention the rope",
@@ -14,7 +19,7 @@ local idiomTable = {
 	"curses like chickens come home to roost"
 }
 
-function Writer(idiomType)
+function Writer()
 	local w, h = 0, 0
 	local alphabet = { }
 
@@ -26,15 +31,7 @@ function Writer(idiomType)
 		local w, h = img:getDimensions()
 	end
 
-	local idiom = { }
-	if idiomType == "idiom" then
-		idiom = chooseIdiom()
-	elseif idiomType == "gameOver" then
-		idiom = "you have learned all this has to teach you"
-	else
-		idiom = "test practice typing"
-	end
-	
+	local idiom = chooseIdiom()
 	local words = getWordsFromIdiom(idiom)
 	local characters = getCharactersFromWords(words)
 	local wordsAsCharacters = getWordsAsCharacters(characters)
@@ -90,6 +87,9 @@ function writerClass:keypressed(key)
 	if key == "return" then
 		self:endHelper()
 	end
+	if key == "escape" then
+		love.event.quit()
+	end
 end
 
 function writerClass:endHelper()
@@ -137,19 +137,30 @@ end
 
 function writerClass:checkForCompleteIdiom()
 	local complete = false
+
+	print(require('dump')(self.wordsComplete))
+	print(require('dump')(self.words))
+	print("# words complete: ", #self.wordsComplete)
+	print("# words: ", #self.words)
+	
 	if #self.wordsComplete >= #self.words then
+
 		for i, requiredWord in ipairs(self.words) do
-			local matches = 0
 			for j, completedWord in ipairs(self.wordsComplete) do
-				if j == #self.wordsComplete and matches == #self.words then
-					complete = true
-				else
-					if requiredWord == completedWord then
-						matches = matches + 1
-					end
+				
+				if completedWord == requiredWord then
+					table.remove(self.words, i) -- don't double-check
 				end
+
+				if j == #self.wordsComplete and next(self.words) ~= nil then
+					complete = false
+				elseif next(self.words) == nil then
+					complete = true
+				end
+			
 			end
 		end
+
 	end
 	return complete
 end
@@ -163,11 +174,17 @@ function copy(entry)
 end
 
 function chooseIdiom()
-	math.randomseed(os.time())
-	local i = math.random(1, #idiomTable)
-	local current = idiomTable[i]
-	table.remove(idiomTable, i)
-	return current
+	if next(idiomTable) ~= nil then
+		math.randomseed(os.time())
+		local i = math.random(1, #idiomTable)
+		local current = idiomTable[i]
+		table.remove(idiomTable, i)
+		return current
+	else
+		gameOver = true
+		local gameOverText = "you have done all you can here"
+		return gameOverText
+	end
 end
 
 function getWordsFromIdiom(idiom)
@@ -206,12 +223,13 @@ end
 
 function writerClass:restart()
 	self.idiom = chooseIdiom()
-	if next(self.idiom) ~= nil then
-		gameOver = true
-	end
 	self.words = getWordsFromIdiom(self.idiom)
 	self.characters = getCharactersFromWords(self.words)
 	self.wordsAsCharacters = getWordsAsCharacters(self.characters)
+	self.lastLetter = ""
+	self.letterQueue = { }
+	self.wordQueue = { }
+	self.wordsComplete = { }
 end
 
 return Writer
