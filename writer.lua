@@ -3,8 +3,8 @@ writerClass.__index = writerClass
 
 
 local idiomTable = {
-	"hi hello",
-	"bye below"
+	"hi ello",
+	"bye good"
 }
 local idiotTable = {
 	"laws catch flies but let hornets go free",
@@ -101,34 +101,52 @@ end
 
 function writerClass:textinput(t)
 	self.lastLetter = t
-
-	local candidateWords = { }
-	if next(self.wordQueue) == nil then
-		candidateWords = copy(self.wordsAsCharacters)
-	else
-		candidateWords = copy(self.wordQueue)
-	end
-	
+	local candidateWords = self:refreshQueue()
 	self:checkText(t, (#self.letterQueue + 1), candidateWords)
 end
 
+function writerClass:refreshQueue()
+	local candidateWords = { }
+	if next(self.wordQueue) == nil then
+		print('copying from words as characters')
+		candidateWords = copy(self.wordsAsCharacters)
+	else
+		print('copying from word queue')
+		candidateWords = copy(self.wordQueue)
+	end
+	return candidateWords
+end
+
 function writerClass:checkText(t, currentPosition, candidateWords)
-	for idx, word in pairs(candidateWords) do
 		
-		if word[currentPosition] == t then
-			-- this condition avoids duplicate inserts if more than one word is valid
-			if self.letterQueue[currentPosition] ~= t then
-				table.insert(self.letterQueue, t)
+		print(require('dump')({
+			t = t,
+			currentPosition = currentPosition,
+			candidateWords = candidateWords
+		}))
+
+		for idx, word in pairs(candidateWords) do
+		
+			print(require('dump')({
+				idx = idx,
+				word = word
+			}))
+						
+			if word[currentPosition] == t then
+				-- this condition avoids duplicate inserts if more than one word is valid
+				if self.letterQueue[currentPosition] ~= t then
+					table.insert(self.letterQueue, t)
+				end
+		
+				if #word == #self.letterQueue then
+					table.insert(self.wordsComplete, idx)
+					self.letterQueue = { }
+					candidateWords = self:refreshQueue()
+				end
+		
+			else
+				candidateWords[idx] = nil
 			end
-		
-			if #word == #self.letterQueue then
-				table.insert(self.wordsComplete, idx)
-				self.letterQueue = { }
-			end
-		
-		else
-			candidateWords[idx] = nil
-		end
 	
 	end				
 	
@@ -137,11 +155,6 @@ end
 
 function writerClass:checkForCompleteIdiom()
 	local complete = false
-
-	print(require('dump')(self.wordsComplete))
-	print(require('dump')(self.words))
-	print("# words complete: ", #self.wordsComplete)
-	print("# words: ", #self.words)
 	
 	if #self.wordsComplete >= #self.words then
 
